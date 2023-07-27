@@ -129,6 +129,12 @@ impl From<Vec<Vec<u8>>> for Sudoku {
     }
 }
 
+impl From<&str> for Sudoku {
+    fn from(value: &str) -> Self {
+        let rows = value.split("\n");
+    }
+}
+
 trait SudokuIterUnique {
     fn unique<'b, It>(row_iter: It) -> bool where It: Iterator<Item=&'b u8> {
         let mut nums = [0_u8; 10];
@@ -137,86 +143,84 @@ trait SudokuIterUnique {
     }
 }
 
-pub struct SudokuRowConstraint<'a> {
-    sudoku: &'a Sudoku,
+pub struct SudokuRowConstraint {
 }
 
-impl SudokuIterUnique for SudokuRowConstraint<'_> { }
+impl SudokuIterUnique for SudokuRowConstraint { }
 
-impl <'a> SudokuRowConstraint<'a> {
-    pub fn new(sudoku: &'a Sudoku) -> Self {
-        Self { sudoku }
+impl  SudokuRowConstraint {
+    pub fn new() -> Self {
+        Self {}
     }
 
-    fn are_rows_correct(&self) -> bool {
-       self.sudoku.values.iter().all(|row| Self::unique(row.iter()))
-    }
-}
-
-impl SudokuIterUnique for SudokuColConstraint<'_> { }
-
-impl Constraint for SudokuRowConstraint<'_> {
-    fn is_satisfied(&self) -> bool {
-        self.are_rows_correct()
+    fn are_rows_correct(&self, sudoku: &Sudoku) -> bool {
+       sudoku.values.iter().all(|row| Self::unique(row.iter()))
     }
 }
 
+impl SudokuIterUnique for SudokuColConstraint { }
 
-pub struct SudokuColConstraint<'a> {
-    sudoku: &'a Sudoku
-}
-
-impl <'a> SudokuColConstraint<'a> {
-    pub fn new(sudoku: &'a Sudoku) -> Self {
-        Self { sudoku }
-    }
-
-    fn are_cols_correct(&self) -> bool {
-        (0..9).all(|i| Self::unique(self.sudoku.values.iter().map(|row| &row[i])))
+impl Constraint<Sudoku> for SudokuRowConstraint {
+    fn is_satisfied(&self, problem: &Sudoku) -> bool {
+        self.are_rows_correct(problem)
     }
 }
 
-impl Constraint for SudokuColConstraint<'_> {
-    fn is_satisfied(&self) -> bool {
-        self.are_cols_correct()
+
+pub struct SudokuColConstraint {
+
+}
+
+impl SudokuColConstraint {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    fn are_cols_correct(&self, sudoku: &Sudoku) -> bool {
+        (0..9).all(|i| Self::unique(sudoku.values.iter().map(|row| &row[i])))
     }
 }
 
-pub struct SudokuSquareConstraint<'a> {
-    sudoku: &'a Sudoku
+impl Constraint<Sudoku> for SudokuColConstraint {
+    fn is_satisfied(&self, problem: &Sudoku) -> bool {
+        self.are_cols_correct(problem)
+    }
 }
 
-impl SudokuIterUnique for SudokuSquareConstraint<'_> { }
+pub struct SudokuSquareConstraint {
+}
 
-impl <'a> SudokuSquareConstraint<'a> {
-    pub fn new(sudoku: &'a Sudoku) -> Self {
-        Self { sudoku }
+impl SudokuIterUnique for SudokuSquareConstraint { }
+
+impl SudokuSquareConstraint {
+    pub fn new() -> Self {
+        Self {  }
     }
 
-    fn are_squares_correct(&self) -> bool {
-        let square_it = |i, j| self.sudoku.values[i..i+3].iter().flat_map(move |row| &row[j..j+3]);
+    fn are_squares_correct(&self, sudoku: &Sudoku) -> bool {
+        let square_it = |i, j| sudoku.values[i..i+3].iter().flat_map(move |row| &row[j..j+3]);
         (0..3).all(|i| (0..3).all(|j| Self::unique(square_it(i * 3, j * 3))))
     }
 }
 
-impl Constraint for SudokuSquareConstraint<'_> {
-    fn is_satisfied(&self) -> bool {
-        self.are_squares_correct()
+impl Constraint<Sudoku> for SudokuSquareConstraint {
+    fn is_satisfied(&self, problem: &Sudoku) -> bool {
+        self.are_squares_correct(problem)
     }
 }
 
-pub fn is_sudoku_satisfied(problem: &Sudoku) -> bool {
-    let row_constraint = SudokuRowConstraint::new(problem);
-    let col_constraint = SudokuColConstraint::new(problem);
-    let square_constraint = SudokuSquareConstraint::new(problem);
-    if !row_constraint.is_satisfied() {
-        return false;
-    }
-    if !col_constraint.is_satisfied() {
-        return false;
-    }
-    if !square_constraint.is_satisfied() {
-        return false;
-    }
-    true
-}
+// pub fn is_sudoku_satisfied(problem: &Sudoku) -> bool {
+//     let row_constraint = SudokuRowConstraint::new(problem);
+//     let col_constraint = SudokuColConstraint::new(problem);
+//     let square_constraint = SudokuSquareConstraint::new(problem);
+//     if !row_constraint.is_satisfied(problem) {
+//         return false;
+//     }
+//     if !col_constraint.is_satisfied(problem) {
+//         return false;
+//     }
+//     if !square_constraint.is_satisfied(problem) {
+//         return false;
+//     }
+//     true
+// }

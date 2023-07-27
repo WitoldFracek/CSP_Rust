@@ -1,8 +1,8 @@
 use num_traits::Num;
 use crate::CSP;
 
-pub trait Constraint {
-    fn is_satisfied(&self) -> bool;
+pub trait Constraint<P: CSP> {
+    fn is_satisfied(&self, problem: &P) -> bool;
 }
 
 pub struct NumSeqUnique<T> where T: Num {
