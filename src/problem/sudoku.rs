@@ -49,6 +49,9 @@ impl CSP for Sudoku {
 
 impl Sudoku {
     fn are_vec_values_in_range(values: &Vec<Vec<u8>>) -> bool {
+        if values.len() != 9 { return false; }
+        if values.iter().all(|row| row.len() != 9) { return false; }
+
         for row in values {
             for &elem in row {
                 match elem {
@@ -58,6 +61,26 @@ impl Sudoku {
             }
         }
         true
+    }
+
+    fn get_filled_vecs(values: &Vec<Vec<u8>>) -> (Vec<Vec<u8>>, Vec<Vec<RangeDomain<u8>>>) {
+        let mut ret_domains = Vec::with_capacity(9);
+        let mut ret_values = Vec::with_capacity(9);
+        for row in values {
+            let mut domains_row = Vec::with_capacity(9);
+            let mut values_row = Vec::with_capacity(9);
+            for &arg in row {
+                if arg == 0 {
+                    domains_row.push(RangeDomain::new(0, 9));
+                } else {
+                    domains_row.push(RangeDomain::new(arg, arg));
+                }
+                values_row.push(arg);
+            }
+            ret_domains.push(domains_row);
+            ret_values.push(values_row);
+        }
+        (ret_values, ret_domains)
     }
 
     pub fn str_repr(&self) -> String {
@@ -107,31 +130,32 @@ impl Sudoku {
 impl From<Vec<Vec<u8>>> for Sudoku {
     fn from(value: Vec<Vec<u8>>) -> Self {
         if !Self::are_vec_values_in_range(&value) {
-            panic!("Not all values are in acceptable range. Values must be between 0 and 9.");
+            panic!("Not all values are in acceptable range. \
+            Expects to have a Vec of 9 Vecs. Each row has to have 9 characters. \
+            Values must be between 0 and 9.");
         }
-        let mut domains = Vec::with_capacity(9);
-        let mut values = Vec::with_capacity(9);
-        for row in value {
-            let mut domains_row = Vec::with_capacity(9);
-            let mut values_row = Vec::with_capacity(9);
-            for arg in row {
-                if arg == 0 {
-                    domains_row.push(RangeDomain::new(0, 9));
-                } else {
-                    domains_row.push(RangeDomain::new(arg, arg));
-                }
-                values_row.push(arg);
-            }
-            domains.push(domains_row);
-            values.push(values_row);
-        }
+        let (values, domains) = Self::get_filled_vecs(&value);
         Self { domains, values, row_i: 0, col_i: 0 }
     }
 }
 
 impl From<&str> for Sudoku {
     fn from(value: &str) -> Self {
-        let rows = value.split("\n");
+        let values = value
+            .split("\n")
+            .map(|x| x
+                .chars()
+                .filter_map(|x| x.to_digit(10))
+                .map(|x| x as u8)
+                .collect::<Vec<u8>>())
+            .collect::<Vec<Vec<u8>>>();
+        if !Self::are_vec_values_in_range(&values) {
+            panic!("Not all values are in acceptable range or the &str len is too small. \
+            Expects to have 9 lines separated by new line character. Each line has to have 9 characters. \
+            Values must be between 0 and 9.");
+        }
+        let (values, domains) = Self::get_filled_vecs(&values);
+        Self { domains, values, row_i: 0, col_i: 0 }
     }
 }
 
