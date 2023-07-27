@@ -1,4 +1,5 @@
 pub mod sudoku;
+pub mod binary;
 
 pub trait CSP {
     fn forward(&mut self) -> Result<bool, String>;

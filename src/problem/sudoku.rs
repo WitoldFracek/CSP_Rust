@@ -7,7 +7,6 @@ use crate::constraints::Constraint;
 #[derive(Debug)]
 pub struct Sudoku {
     domains: Vec<Vec<RangeDomain<u8>>>,
-    values: Vec<Vec<u8>>,
     row_i: usize,
     col_i: usize,
 }
@@ -17,9 +16,8 @@ impl CSP for Sudoku {
         if self.is_finished() {
             return Ok(true);
         }
-        if self.values[self.row_i][self.col_i] == 0 {
+        if self.domains[self.row_i][self.col_i].value() == 0 {
             self.domains[self.row_i][self.col_i].next();
-            self.values[self.row_i][self.col_i] = self.domains[self.row_i][self.col_i].value();
             return Ok(false);
         }
         self.next_cell()
@@ -28,16 +26,11 @@ impl CSP for Sudoku {
     fn backward(&mut self) -> Result<(), String> {
         let mut updated = false;
         while !updated {
-            if self.domains[self.row_i][self.col_i].is_fixed() {
-
-            }
             if self.domains[self.row_i][self.col_i].has_next() {
                 self.domains[self.row_i][self.col_i].next();
-                self.values[self.row_i][self.col_i] = self.domains[self.row_i][self.col_i].value();
                 updated = true;
             } else {
                 self.domains[self.row_i][self.col_i].reset();
-                self.values[self.row_i][self.col_i] = 0;
                 if let Err(message) = self.prev_cell() {
                     return Err(message);
                 }
@@ -63,32 +56,23 @@ impl Sudoku {
         true
     }
 
-    fn get_filled_vecs(values: &Vec<Vec<u8>>) -> (Vec<Vec<u8>>, Vec<Vec<RangeDomain<u8>>>) {
-        let mut ret_domains = Vec::with_capacity(9);
-        let mut ret_values = Vec::with_capacity(9);
-        for row in values {
-            let mut domains_row = Vec::with_capacity(9);
-            let mut values_row = Vec::with_capacity(9);
-            for &arg in row {
-                if arg == 0 {
-                    domains_row.push(RangeDomain::new(0, 9));
-                } else {
-                    domains_row.push(RangeDomain::new(arg, arg));
-                }
-                values_row.push(arg);
-            }
-            ret_domains.push(domains_row);
-            ret_values.push(values_row);
-        }
-        (ret_values, ret_domains)
+    fn get_domain_vec(values: &Vec<Vec<u8>>) -> Vec<Vec<RangeDomain<u8>>> {
+        values
+            .iter()
+            .map(|row|
+                row
+                .iter()
+                .map(|&x| if x == 0 { RangeDomain::new(0, 9)} else {RangeDomain::new(x, x)})
+                .collect::<Vec<RangeDomain<u8>>>())
+            .collect()
     }
 
     pub fn str_repr(&self) -> String {
         let mut ret = String::with_capacity(252);
-        for row in &self.values {
-            for &elem in row {
-                if elem != 0 {
-                    ret = format!("{ret} {} ", elem);
+        for row in &self.domains {
+            for &domain in row {
+                if domain.value() != 0 {
+                    ret = format!("{ret} {} ", domain.value());
                 } else {
                     ret = format!("{ret} _ ");
                 }
@@ -134,8 +118,8 @@ impl From<Vec<Vec<u8>>> for Sudoku {
             Expects to have a Vec of 9 Vecs. Each row has to have 9 characters. \
             Values must be between 0 and 9.");
         }
-        let (values, domains) = Self::get_filled_vecs(&value);
-        Self { domains, values, row_i: 0, col_i: 0 }
+        let domains = Self::get_domain_vec(&value);
+        Self { domains, row_i: 0, col_i: 0 }
     }
 }
 
@@ -154,15 +138,15 @@ impl From<&str> for Sudoku {
             Expects to have 9 lines separated by new line character. Each line has to have 9 characters. \
             Values must be between 0 and 9.");
         }
-        let (values, domains) = Self::get_filled_vecs(&values);
-        Self { domains, values, row_i: 0, col_i: 0 }
+        let domains = Self::get_domain_vec(&values);
+        Self { domains, row_i: 0, col_i: 0 }
     }
 }
 
 trait SudokuIterUnique {
-    fn unique<'b, It>(row_iter: It) -> bool where It: Iterator<Item=&'b u8> {
+    fn unique<I>(iter: I) -> bool where I: Iterator<Item=u8> {
         let mut nums = [0_u8; 10];
-        row_iter.for_each(|&x| nums[x as usize] += 1);
+        iter.for_each(|x| nums[x as usize] += 1);
         nums.iter().skip(1).all(|&x| x < 2)
     }
 }
@@ -178,7 +162,7 @@ impl  SudokuRowConstraint {
     }
 
     fn are_rows_correct(&self, sudoku: &Sudoku) -> bool {
-       sudoku.values.iter().all(|row| Self::unique(row.iter()))
+       sudoku.domains.iter().all(|row| Self::unique(row.iter().map(|d| d.value())))
     }
 }
 
@@ -201,7 +185,7 @@ impl SudokuColConstraint {
     }
 
     fn are_cols_correct(&self, sudoku: &Sudoku) -> bool {
-        (0..9).all(|i| Self::unique(sudoku.values.iter().map(|row| &row[i])))
+        (0..9).all(|i| Self::unique(sudoku.domains.iter().map(|row| row[i].value())))
     }
 }
 
@@ -222,7 +206,7 @@ impl SudokuSquareConstraint {
     }
 
     fn are_squares_correct(&self, sudoku: &Sudoku) -> bool {
-        let square_it = |i, j| sudoku.values[i..i+3].iter().flat_map(move |row| &row[j..j+3]);
+        let square_it = |i, j| sudoku.domains[i..i+3].iter().flat_map(move |row| &row[j..j+3]).map(|d| d.value());
         (0..3).all(|i| (0..3).all(|j| Self::unique(square_it(i * 3, j * 3))))
     }
 }
