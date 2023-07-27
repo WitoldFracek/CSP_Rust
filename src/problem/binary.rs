@@ -145,3 +145,25 @@ impl Constraint<Binary> for BinaryRowConstraint {
         self.is_row_ok(problem)
     }
 }
+
+pub struct BinaryColConstraint {
+
+}
+
+impl BinaryIterEquilibrium for BinaryColConstraint { }
+
+impl BinaryColConstraint {
+    pub fn new() -> Self {
+        Self { }
+    }
+
+    fn is_col_ok(&self, binary: &Binary) -> bool {
+        (0..binary.size).all(|i| Self::in_equilibrium(binary.domains.iter().map(|row| row[i].value())))
+    }
+}
+
+impl Constraint<Binary> for BinaryColConstraint {
+    fn is_satisfied(&self, problem: &Binary) -> bool {
+        self.is_col_ok(problem)
+    }
+}

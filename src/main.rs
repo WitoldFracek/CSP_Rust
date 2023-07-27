@@ -3,7 +3,7 @@ use crate::constraints::Constraint;
 use crate::domains::RangeDomain;
 use crate::problem::CSP;
 use crate::problem::{sudoku, sudoku::Sudoku, binary::Binary};
-use crate::problem::binary::BinaryRowConstraint;
+use crate::problem::binary::{BinaryColConstraint, BinaryRowConstraint};
 use crate::solver::CSPSolver;
 use crate::sudoku::{SudokuColConstraint, SudokuRowConstraint, SudokuSquareConstraint};
 
@@ -80,13 +80,14 @@ fn main() {
 
     let binary = Binary::from(vec![
         vec![-1, -1, -1, -1],
-        vec![-1, -1, -1, -1],
-        vec![-1, -1, -1, -1],
+        vec![-1, 1, 0, -1],
+        vec![-1, -1, 0, -1],
         vec![-1, -1, -1, -1],
     ]);
     println!("{}", binary.str_repr());
     let constraints: Vec<Box<dyn Constraint<Binary>>> = vec![
-        Box::new(BinaryRowConstraint::new())
+        Box::new(BinaryRowConstraint::new()),
+        Box::new(BinaryColConstraint::new()),
     ];
     let mut solver = CSPSolver::new(binary, constraints);
     match solver.solve() {
