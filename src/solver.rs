@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use crate::{Constraint, CSP};
 
 pub struct CSPSolver<P: CSP> {
@@ -5,7 +6,7 @@ pub struct CSPSolver<P: CSP> {
     constraints: Vec<Box<dyn Constraint<P>>>
 }
 
-impl <P: CSP> CSPSolver<P> {
+impl <P: CSP + Debug> CSPSolver<P> {
 
     pub fn new(problem: P, constraints: Vec<Box<dyn Constraint<P>>>) -> Self {
         Self { problem, constraints }
@@ -17,6 +18,7 @@ impl <P: CSP> CSPSolver<P> {
 
     pub fn solve(mut self) -> Result<P, String> {
         let mut solved = false;
+        println!("{:?}", self.problem);
         while !solved {
             if !self.all_satisfied() {
                 match self.problem.backward() {

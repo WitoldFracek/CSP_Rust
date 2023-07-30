@@ -1,3 +1,5 @@
+pub mod grid;
+
 use num_traits::Num;
 use crate::CSP;
 
