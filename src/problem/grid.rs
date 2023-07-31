@@ -104,8 +104,8 @@ impl <T: PartialEq + Display> Grid<T> {
     }
 }
 
-impl <T> Debug for Grid<T> {
+impl <T> Debug for Grid<T> where T: PartialEq + Display {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.str_repr())
+        write!(f, "{}", self.str_repr())
     }
 }

@@ -18,9 +18,9 @@ impl <P: CSP + Debug> CSPSolver<P> {
 
     pub fn solve(mut self) -> Result<P, String> {
         let mut solved = false;
-        println!("{:?}", self.problem);
         while !solved {
             if !self.all_satisfied() {
+                // println!("{:?}", self.problem);
                 match self.problem.backward() {
                     Ok(()) => {},
                     Err(message) => return Err(format!("Problem cannot be solved. {message}")),
