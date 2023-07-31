@@ -73,14 +73,14 @@ impl <T: PartialEq + Copy> Grid<T> {
     }
 }
 
-impl <T: PartialEq + Display> Grid<T> {
-    pub fn str_repr(&self) -> String {
+impl <T: ToString> ToString for Grid<T> {
+    fn to_string(&self) -> String {
         let mut ret = String::new();
         for row in &self.domains {
             for domain in row {
                 match domain.value() {
                     None => ret = format!("{ret} _ "),
-                    Some(value) => ret = format!("{ret} {} ", value),
+                    Some(value) => ret = format!("{ret} {} ", value.to_string()),
                 }
             }
             ret.push('\n');
@@ -91,6 +91,6 @@ impl <T: PartialEq + Display> Grid<T> {
 
 impl <T> Debug for Grid<T> where T: PartialEq + Display {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.str_repr())
+        write!(f, "{}", self.to_string())
     }
 }

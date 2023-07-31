@@ -7,6 +7,7 @@ pub trait Domain {
     fn value(&self) -> Option<Self::Item>;
     fn has_next(&self) -> bool;
     fn value_belongs(&self, value: Self::Item) -> bool;
+    fn is_fixed(&self) -> bool { false }
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -37,6 +38,10 @@ impl <T: Num + Copy> Domain for FixedDomain<T> {
 
     fn value_belongs(&self, value: Self::Item) -> bool {
         value == self.value
+    }
+
+    fn is_fixed(&self) -> bool {
+        true
     }
 }
 

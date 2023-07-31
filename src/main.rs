@@ -2,6 +2,7 @@ use std::process::exit;
 use crate::constraints::Constraint;
 use crate::constraints::grid::{ColBinaryEquilibrium, ColUnique, RowBinaryEquilibrium, RowUnique, SudokuSquare};
 use crate::domains::{Domain, FixedDomain, RangeDomain};
+use crate::presentation::sudoku::sudoku_repr;
 use crate::problem::CSP;
 use crate::problem::grid::Grid;
 use crate::solver::CSPSolver;
@@ -10,6 +11,7 @@ mod constraints;
 mod domains;
 mod problem;
 mod solver;
+mod presentation;
 
 fn sudoku_domains_from_vec(values: Vec<Vec<u8>>) -> Vec<Vec<Box<dyn Domain<Item=u8>>>> {
     let mut ret = Vec::with_capacity(values.len() * values.len());
@@ -69,7 +71,7 @@ fn main() {
     let mut sudoku = Grid::from_domains(sudoku_domains_from_vec(sudoku_init));
     let mut binary = Grid::from_domains(binary_domains_from_vec(binary_init));
 
-    println!("Sudoku:\n{}", sudoku.str_repr());
+    println!("Sudoku:\n{}", sudoku_repr(&sudoku));
     let sudoku_constraints: Vec<Box<dyn Constraint<Grid<u8>>>> = vec![
         Box::new(RowUnique::new()),
         Box::new(ColUnique::new()),
@@ -77,19 +79,19 @@ fn main() {
     ];
 
     let mut solver = CSPSolver::new(&mut sudoku, sudoku_constraints);
-    let sudoku = match solver.solve() {
-        Ok(sudoku) => {println!("Solved!\n{}", sudoku.str_repr()); sudoku},
+    let _sudoku = match solver.solve() {
+        Ok(sudoku) => {println!("Solved!\n{}", sudoku_repr(&sudoku)); sudoku},
         Err(_) => {println!("This problem is unsolvable"); exit(0)},
     };
 
-    println!("Binary:\n{}", binary.str_repr());
+    println!("Binary:\n{}", binary.to_string());
     let binary_constraints: Vec<Box<dyn Constraint<Grid<i8>>>> = vec![
         Box::new(RowBinaryEquilibrium::new()),
         Box::new(ColBinaryEquilibrium::new())
     ];
     let mut solver = CSPSolver::new(&mut binary, binary_constraints);
-    let binary = match solver.solve() {
-       Ok(binary) => {println!("Solved!\n{}", binary.str_repr()); binary},
+    let _binary = match solver.solve() {
+       Ok(binary) => {println!("Solved!\n{}", binary.to_string()); binary},
         Err(_) => {println!("This problem is unsolvable"); exit(0)},
     };
 }

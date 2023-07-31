@@ -73,11 +73,12 @@ impl Unique for SudokuSquare { }
 
 impl <T: Copy + Hash + Eq> Constraint<Grid<T>> for SudokuSquare {
     fn is_satisfied(&self, problem: &Grid<T>) -> bool {
-        let square_it = |i, j| problem.domains[i..i+3]
+        let n = (problem.size as f64).sqrt() as usize;
+        let square_it = |i, j| problem.domains[i..i+n]
             .iter()
-            .flat_map(move |row| &row[j..j+3])
+            .flat_map(move |row| &row[j..j+n])
             .map(|d| d.value());
-        (0..3).all(|i| (0..3).all(|j| Self::unique(square_it(i * 3, j * 3))))
+        (0..n).all(|i| (0..n).all(|j| Self::unique(square_it(i * n, j * n))))
     }
 }
 
@@ -110,7 +111,11 @@ impl BinaryEquilibrium for RowBinaryEquilibrium { }
 
 impl Constraint<Grid<i8>> for RowBinaryEquilibrium {
     fn is_satisfied(&self, problem: &Grid<i8>) -> bool {
-        problem.domains.iter().all(|row| Self::in_equilibrium(row.iter().map(|x| x.value())))
+        problem.domains
+            .iter()
+            .all(|row| Self::in_equilibrium(row
+                .iter()
+                .map(|x| x.value())))
     }
 }
 
@@ -128,7 +133,10 @@ impl BinaryEquilibrium for ColBinaryEquilibrium { }
 
 impl Constraint<Grid<i8>> for ColBinaryEquilibrium {
     fn is_satisfied(&self, problem: &Grid<i8>) -> bool {
-        (0..problem.size).all(|i| Self::in_equilibrium(problem.domains.iter().map(|row| row[i].value())))
+        (0..problem.size)
+            .all(|i| Self::in_equilibrium(problem.domains
+                .iter()
+                .map(|row| row[i].value())))
     }
 }
 
