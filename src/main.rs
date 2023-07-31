@@ -66,8 +66,8 @@ fn main() {
         vec![0, 1, -1, -1, -1, -1],
     ];
 
-    let sudoku = Grid::from_domains(sudoku_domains_from_vec(sudoku_init));
-    let binary = Grid::from_domains(binary_domains_from_vec(binary_init));
+    let mut sudoku = Grid::from_domains(sudoku_domains_from_vec(sudoku_init));
+    let mut binary = Grid::from_domains(binary_domains_from_vec(binary_init));
 
     println!("Sudoku:\n{}", sudoku.str_repr());
     let sudoku_constraints: Vec<Box<dyn Constraint<Grid<u8>>>> = vec![
@@ -76,7 +76,7 @@ fn main() {
         Box::new(SudokuSquare::new())
     ];
 
-    let solver = CSPSolver::new(sudoku, sudoku_constraints);
+    let mut solver = CSPSolver::new(&mut sudoku, sudoku_constraints);
     let sudoku = match solver.solve() {
         Ok(sudoku) => {println!("Solved!\n{}", sudoku.str_repr()); sudoku},
         Err(_) => {println!("This problem is unsolvable"); exit(0)},
@@ -87,7 +87,7 @@ fn main() {
         Box::new(RowBinaryEquilibrium::new()),
         Box::new(ColBinaryEquilibrium::new())
     ];
-    let solver = CSPSolver::new(binary, binary_constraints);
+    let mut solver = CSPSolver::new(&mut binary, binary_constraints);
     let binary = match solver.solve() {
        Ok(binary) => {println!("Solved!\n{}", binary.str_repr()); binary},
         Err(_) => {println!("This problem is unsolvable"); exit(0)},
