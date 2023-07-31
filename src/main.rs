@@ -13,7 +13,9 @@ mod problem;
 mod solver;
 mod presentation;
 
+
 fn sudoku_domains_from_vec(values: Vec<Vec<u8>>) -> Vec<Vec<Box<dyn Domain<Item=u8>>>> {
+    let len = values.len() as u8;
     let mut ret = Vec::with_capacity(values.len() * values.len());
     for row in values {
         let mut domain_row = Vec::<Box<dyn Domain<Item=u8>>>::new();
@@ -21,7 +23,7 @@ fn sudoku_domains_from_vec(values: Vec<Vec<u8>>) -> Vec<Vec<Box<dyn Domain<Item=
             if elem != 0 {
               domain_row.push(Box::new(FixedDomain::new(elem))) ;
             } else {
-                domain_row.push(Box::new(RangeDomain::new(1, 9)));
+                domain_row.push(Box::new(RangeDomain::new(1, len)));
             }
         }
         ret.push(domain_row);
@@ -46,17 +48,30 @@ fn binary_domains_from_vec(values: Vec<Vec<i8>>) -> Vec<Vec<Box<dyn Domain<Item=
 }
 
 
+
+
 fn main() {
+    let _empty = vec![
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ];
     let sudoku_init = vec![
-        vec![5, 3, 0, 0, 7, 0, 0, 0, 0],
-        vec![6, 0, 0, 1, 9, 5, 0, 0, 0],
-        vec![0, 9, 8, 0, 0, 0, 0, 6, 0],
-        vec![8, 0, 0, 0, 6, 0, 0, 0, 3],
-        vec![4, 0, 0, 8, 0, 3, 0, 0, 1],
-        vec![7, 0, 0, 0, 2, 0, 0, 0, 6],
-        vec![0, 6, 0, 0, 0, 0, 2, 8, 0],
-        vec![0, 0, 0, 4, 1, 9, 0, 0, 5],
-        vec![0, 0, 0, 0, 8, 0, 0, 7, 9],
+        vec![0, 1, 0, 0, 9, 5, 0, 0, 8],
+        vec![9, 0, 0, 0, 0, 0, 0, 0, 4],
+        vec![3, 0, 7, 0, 1, 0, 9, 0, 0],
+        vec![0, 0, 0, 8, 0, 3, 2, 0, 0],
+        vec![0, 2, 0, 5, 6, 0, 0, 0, 0],
+        vec![0, 0, 3, 0, 7, 2, 0, 5, 0],
+        vec![2, 0, 0, 0, 5, 6, 8, 0, 0],
+        vec![0, 7, 0, 0, 0, 4, 0, 1, 6],
+        vec![8, 0, 0, 0, 0, 0, 0, 0, 2],
     ];
 
     let binary_init = vec![
@@ -94,4 +109,7 @@ fn main() {
        Ok(binary) => {println!("Solved!\n{}", binary.to_string()); binary},
         Err(_) => {println!("This problem is unsolvable"); exit(0)},
     };
+
+    let s = color!("Hello", colors::fg::ORANGE, colors::bg::BLACK);
+    println!("{s}");
 }

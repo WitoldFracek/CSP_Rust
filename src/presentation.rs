@@ -1,5 +1,27 @@
 #![allow(dead_code)]
 
+#[macro_export]
+    macro_rules! color {
+        ( $arg: expr ) => {
+            {
+                use crate::presentation::colors;
+                colors::colored_text($arg, "", "", true)
+            }
+        };
+        ( $arg: expr, $fg: expr ) => {
+            {
+                use crate::presentation::colors;
+                colors::colored_text($arg, $fg, "", true)
+            }
+        };
+        ( $arg: expr, $fg: expr, $bg: expr ) => {
+            {
+                use crate::presentation::colors;
+                colors::colored_text($arg, $fg, $bg, true)
+            }
+        };
+}
+
 pub mod colors {
 
     pub const END: &str = "\x1b[0m";
