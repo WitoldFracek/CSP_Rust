@@ -76,7 +76,7 @@ fn main() {
         Box::new(SudokuSquare::new())
     ];
 
-    let mut solver = CSPSolver::new(sudoku, sudoku_constraints);
+    let solver = CSPSolver::new(sudoku, sudoku_constraints);
     let sudoku = match solver.solve() {
         Ok(sudoku) => {println!("Solved!\n{}", sudoku.str_repr()); sudoku},
         Err(_) => {println!("This problem is unsolvable"); exit(0)},
@@ -87,7 +87,7 @@ fn main() {
         Box::new(RowBinaryEquilibrium::new()),
         Box::new(ColBinaryEquilibrium::new())
     ];
-    let mut solver = CSPSolver::new(binary, binary_constraints);
+    let solver = CSPSolver::new(binary, binary_constraints);
     let binary = match solver.solve() {
        Ok(binary) => {println!("Solved!\n{}", binary.str_repr()); binary},
         Err(_) => {println!("This problem is unsolvable"); exit(0)},

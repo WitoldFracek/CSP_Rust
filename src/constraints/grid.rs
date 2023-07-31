@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 use std::hash::Hash;
-use num_traits::{Num, Signed};
-use crate::{Constraint, CSP, Grid};
+use crate::{Constraint, Grid};
 
 trait Unique {
     fn unique<I, T: Hash + Eq>(iter: I) -> bool where I: Iterator<Item=Option<T>> {

@@ -1,8 +1,6 @@
 use std::fmt::{Debug, Display, Formatter};
-use std::thread::spawn;
-use num_traits::real::Real;
 use crate::domains::Domain;
-use crate::{Constraint, CSP, RangeDomain};
+use crate::CSP;
 
 pub struct Grid<T> {
     pub domains: Vec<Vec<Box<dyn Domain<Item=T>>>>,
@@ -41,19 +39,6 @@ impl <T: PartialEq + Copy> CSP for Grid<T>{
 }
 
 impl <T: PartialEq + Copy> Grid<T> {
-    fn vec_values_belong_to_domain(&self, values: &Vec<Vec<T>>) -> bool {
-        let size = values.len();
-        if !values.iter().all(|row| row.len() == size) { return false; }
-        for (i, row) in values.iter().enumerate() {
-            for (j, &elem) in row.iter().enumerate() {
-                if !self.domains[i][j].value_belongs(elem) {
-                    return false;
-                }
-            }
-        }
-        true
-    }
-
     pub fn from_domains(domains: Vec<Vec<Box<dyn Domain<Item=T>>>>) -> Self {
         let size = domains.len();
         Self {domains, size, col_i: 0, row_i: 0}

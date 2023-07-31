@@ -1,4 +1,3 @@
-use std::ops::AddAssign;
 use num_traits::Num;
 
 pub trait Domain {

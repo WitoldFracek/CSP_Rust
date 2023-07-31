@@ -1,6 +1,5 @@
 pub mod grid;
 
-use num_traits::Num;
 use crate::CSP;
 
 pub trait Constraint<P: CSP> {
