@@ -24,7 +24,12 @@ impl <T: PartialEq + Copy> CSP for Grid<T>{
     fn backward(&mut self) -> Result<(), String> {
         let mut updated = false;
         while !updated {
-            if self.domains[self.row_i][self.col_i].has_next() {
+            if self.row_i >= self.size || self.col_i >= self.size {
+                if let Err(message) = self.prev_cell() {
+                    return Err(message);
+                }
+            }
+            else if self.domains[self.row_i][self.col_i].has_next() {
                 self.domains[self.row_i][self.col_i].next();
                 updated = true;
             } else {

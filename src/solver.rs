@@ -33,4 +33,26 @@ impl <'a, P: CSP + Debug> CSPSolver<'a, P> {
         }
         Ok(self.problem)
     }
+
+    pub fn how_many_solutions(&mut self) -> i32 {
+        let mut ret = 0;
+        while let Ok(solution) = self.solve() {
+            ret += 1;
+            match self.problem.backward() {
+                Ok(_) => {},
+                Err(_) => break,
+            }
+        }
+        ret
+    }
+}
+
+impl <'a, P: CSP + Debug + Clone> CSPSolver<'a, P> {
+    pub fn solve_all(&mut self) -> Vec<P> {
+        let mut ret = Vec::new();
+        while let Ok(solution) = self.solve() {
+            ret.push(self.problem.clone())
+        }
+        ret
+    }
 }
