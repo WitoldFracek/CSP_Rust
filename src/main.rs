@@ -105,8 +105,8 @@ fn main() {
     ];
 
     let mut solver = CSPSolver::new(&mut azul, azul_constraints);
-    let count = solver.how_many_solutions();
-    println!("Azul has {count} solutions");
+    // let count = solver.how_many_solutions();
+    // println!("Azul has {count} solutions");
 
     println!("Sudoku:\n{}", sudoku_repr(&sudoku));
     let sudoku_constraints: Vec<Box<dyn Constraint<Grid<u8>>>> = vec![
@@ -116,8 +116,8 @@ fn main() {
     ];
 
     let mut solver = CSPSolver::new(&mut sudoku, sudoku_constraints);
-    let count = solver.how_many_solutions();
-    println!("{count}");
+    // let count = solver.how_many_solutions();
+    // println!("{count}");
     let _sudoku = match solver.solve() {
         Ok(sudoku) => {println!("Solved!\n{}", sudoku_repr(&sudoku)); sudoku},
         Err(_) => {println!("This problem is unsolvable"); exit(0)},
@@ -133,7 +133,4 @@ fn main() {
        Ok(binary) => {println!("Solved!\n{}", binary.to_string()); binary},
         Err(_) => {println!("This problem is unsolvable"); exit(0)},
     };
-
-    let s = color!("Hello", colors::fg::ORANGE, colors::bg::BLACK);
-    println!("{s}");
 }

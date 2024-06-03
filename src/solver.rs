@@ -6,7 +6,7 @@ pub struct CSPSolver<'a, P: CSP> {
     constraints: Vec<Box<dyn Constraint<P>>>
 }
 
-impl <'a, P: CSP + Debug> CSPSolver<'a, P> {
+impl <'a, P: CSP> CSPSolver<'a, P> {
 
     pub fn new(problem: &'a mut P, constraints: Vec<Box<dyn Constraint<P>>>) -> Self {
         Self { problem, constraints }
@@ -47,7 +47,7 @@ impl <'a, P: CSP + Debug> CSPSolver<'a, P> {
     }
 }
 
-impl <'a, P: CSP + Debug + Clone> CSPSolver<'a, P> {
+impl <'a, P: CSP + Clone> CSPSolver<'a, P> {
     pub fn solve_all(&mut self) -> Vec<P> {
         let mut ret = Vec::new();
         while let Ok(solution) = self.solve() {
